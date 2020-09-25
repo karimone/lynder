@@ -39,8 +39,6 @@ def download_tutorial(link):
     download_videos(tutorial)
     return tutorial
 
-
-
 def create_folders(tutorial):
     for char in ' ?.!/;:öä':
         tutorial["title"] = tutorial["title"].replace(char, '')
@@ -55,20 +53,6 @@ def create_folders(tutorial):
             os.mkdir(chapter)
             print("\t\"" + chapter + "\" folder is created.")
 
-
-def create_overview_md(tutorial):
-    overview = open("OVERVIEW.md", "w")
-    overview.write("**Title:** " + tutorial["title"] + "\n")
-    overview.write("**Author:** " + tutorial["author"] + "\n")
-    overview.write("**Released at:** " + tutorial["released_at"] + "\n")
-    overview.write("**Downloaded at:** " + tutorial["downloaded_at"] + "\n")
-    overview.write("**Time Required:** " + tutorial["time_required"] + "\n")
-    overview.write("**Level:** " + tutorial["level"] + "\n")
-    overview.write("**Subject Tags:** " + ', '.join(tutorial["subject_tags"]) + "\n")
-    overview.write("**Software Tags:** " + ', '.join(tutorial["software_tags"]) + "\n")
-    overview.write("**Description:** \n\t" + tutorial["description"] + "\n")
-    overview.close()
-    print("\tOVERVIEW.md is created.")
 
 
 def create_content_md(tutorial):
@@ -107,9 +91,7 @@ def download_lecture(lecture, index):
         authentication = "--username " + settings.USERNAME + " --password " + settings.PASSWORD
 
     print("\n\t\"" + lecture[0] + "\" is downloading...")
-    os.system("youtube-dl --output \"" + str(
-        index + 1) + " - %(title)s.%(ext)s\" --write-sub --embed-subs " + authentication + " " +
-              lecture[1] + " | grep download")
+    os.system("youtube-dl --output \"" + str( index + 1) + " - %(title)s.%(ext)s\" --write-sub --embed-subs " + authentication + " " + lecture[1] + " | grep download")
     print("\t\"" + lecture[0] + "\" was downloaded.")
 
 

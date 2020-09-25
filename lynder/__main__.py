@@ -1,7 +1,7 @@
 import argparse
 import os
 
-from .old import download_tutorial
+from .downloader import dispatcher
 from .settings import settings
 
 
@@ -38,11 +38,14 @@ print("Number of workers is: ", settings.WORKER_NUM)
 
 if parser.file:
     urls = open(parser.file, 'r')
-    for url in urls:
-        download_tutorial(url.strip())
+    # for url in urls:
+    #     download_tutorial(url.strip())
+    dispatcher(urls)
+
 else:
     if parser.url:
         url = parser.url
     else:
         url = input("URL of tutorial: ")
-    download_tutorial(url)
+        dispatcher(url)
+    # download_tutorial(url)

@@ -13,16 +13,16 @@ _logger = logging.getLogger(__name__)
 class LyndaTutorialData:
 
     def __init__(self, **kwargs):
-        self.title = getattr(kwargs, "tutorial")
-        self.author = getattr(kwargs, "author")
-        self.difficult_level = getattr(kwargs, "level")
-        self.release_date = getattr(kwargs, "release_date")
-        self.time_required = getattr(kwargs, "time_required")
-        self.description = getattr(kwargs, "description")
-        self.subject_tags = getattr(kwargs, "subject_tags")
-        self.software_tags = getattr(kwargs, "software_tags")
-        self.download_date = getattr(kwargs, "download_date")
-        self.chapters = getattr(kwargs, "chapters")
+        self.title = kwargs.get("title", None)
+        self.author = kwargs.get("author", None)
+        self.difficult_level = kwargs.get("difficult_level", None)
+        self.release_date = kwargs.get("release_date", None)
+        self.time_required = kwargs.get("time_required", None)
+        self.description = kwargs.get("description", None)
+        self.subject_tags = kwargs.get("subject_tags", None)
+        self.software_tags = kwargs.get("software_tags", None)
+        self.download_date = kwargs.get("download_date", None)
+        self.chapters = kwargs.get("chapters", None)
 
     def get_markdown(self) -> str:
 
@@ -50,7 +50,7 @@ class LyndaTutorialData:
 
 class LyndaTutorial:
 
-    def __init__(self, user: str, password: str, cookie: Cookie, link: str):
+    def __init__(self, link: str, user: str=None , password: str=None, cookie: Cookie=None):
         self._user = user
         self._password = password
         self._cookie = Cookie
@@ -99,8 +99,3 @@ class LyndaTutorial:
         tutorial["chapters"] = chapters
         return tutorial
 
-
-if __name__ == '__main__':
-    tutorial = LyndaTutorial(link="https://www.lynda.com/Marketing-tutorials/Marketing-Tools-Digital-Marketing/2822427-2.html")
-    tutorial_data = tutorial.get_tutorial_data()
-    print(tutorial_data.get_markdown())
