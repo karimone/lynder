@@ -1,0 +1,3 @@
+
+class Pluralsight:
+    pass

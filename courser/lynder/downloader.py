@@ -3,16 +3,44 @@ import logging
 import os
 
 from abc import ABC, abstractmethod
+from collections import namedtuple
+from typing import Optional
+from urllib.parse import urlsplit
 
 from lynder.cookie import Cookie
 from lynder.lecture import Lecture
 from lynder.settings import settings
+from lynder.lynda import Lynda
+from lynder.pluralsight import Pluralsight
 
 _logger = logging.getLogger(__name__)
 
+DispatcherRule = namedtuple("DispatcherRule", ["domain", "service"])
+dispatcher_map = (
+    DispatcherRule(domain="lynda.com", service=Lynda),
+    DispatcherRule(domain="pluralsight.com", service=Pluralsight),
+)
 
-def dispatcher(link: str):
-    print(f"dispatched for the link {link}")
+
+def _get_service_name(netloc: str) -> Optional[str]:
+    for rule in dispatcher_map:
+        print(f"Checking {rule.domain} in {netloc}")
+        if rule.domain in netloc:
+            return rule.service
+    return None
+
+
+def dispatcher(url: str):
+    url_split = urlsplit(url)
+    netloc = url_split.netloc if url_split.scheme else url_split.path
+    assert netloc
+    Service = _get_service_name(netloc)
+    if Service:
+        print(f"Service {Service} found for the url {url}")
+        service = Service(url)
+
+    else:
+        print(f"No service found for the url {url}")
 
 
 class BaseDownloader(ABC):

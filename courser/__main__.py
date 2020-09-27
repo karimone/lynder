@@ -1,13 +1,15 @@
 import argparse
 import os
 
-from .downloader import dispatcher
-from .settings import settings
+from lynder.downloader import dispatcher
+from lynder.settings import settings
 
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Lynda Tutorial Downloader')
     parser.add_argument('-u', '--url', dest="url", action='store', help="Url to download")
+    parser.add_argument('-U', '--user', dest="user", action='store', help="User to login")
+    parser.add_argument('-p', '--password', dest="password", action='store', help="Password to login")
     parser.add_argument('-f', '--file', dest="file", action='store',
                         help="File to load the urls from")
     parser.add_argument('-d', '--dir', dest="download_dir", action='store',
@@ -47,5 +49,6 @@ else:
         url = parser.url
     else:
         url = input("URL of tutorial: ")
-        dispatcher(url)
+
+    dispatcher(url)
     # download_tutorial(url)

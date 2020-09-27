@@ -1,5 +1,7 @@
 import os
 
+__all__ = ['settings', ]
+
 
 class Settings:
     """Simple singleton to have a setting available in the project"""
