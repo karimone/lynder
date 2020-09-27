@@ -66,15 +66,14 @@ class LyndaTutorialData:
     def _get_overview_md(self) -> str:
         # TODO: software tags can be empty
 
-        result = f"""
-**Title:** {self.title}
+        result = f"""**Title:** {self.title}
 **Author:** {self.author}
 **Release date:** {self.release_date}
 **Download date:** {self.download_date}
 **Time Required:** {self.time_required}
 **Difficult Level:** {self.difficult_level}
-**Subject Tags:** {self.subject_tags}
-**Software Tags:** {self.software_tags}
+**Subject Tags:** {", ".join(self.subject_tags)}
+**Software Tags:** {", ".join(self.software_tags) if self.software_tags else " -"}
 
 **Description:**
 
@@ -85,7 +84,7 @@ class LyndaTutorialData:
     def _get_content_md(self) -> str:
         result = f"# {self.title} by {self.author} on lynda.com\n\n"
         for chapter in self.chapters:
-            result += f"##{chapter.title}\n\n"
+            result += f"## {chapter.title}\n\n"
             for lecture in chapter.lectures:
                 result += f"\t- {lecture.title}\n"
             result += "\n"
