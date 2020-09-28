@@ -4,7 +4,7 @@ import os
 
 from abc import ABC, abstractmethod
 from collections import namedtuple
-from typing import Optional
+from typing import List, Optional
 from urllib.parse import urlsplit
 
 from lynder.cookie import Cookie
@@ -12,6 +12,7 @@ from lynder.lecture import Lecture
 from lynder.settings import settings
 from lynder.lynda import Lynda
 from lynder.pluralsight import Pluralsight
+from lynder.tools import get_or_create_folder
 
 _logger = logging.getLogger(__name__)
 
@@ -30,15 +31,38 @@ def _get_service_name(netloc: str) -> Optional[str]:
     return None
 
 
-def dispatcher(url: str):
+def dispatcher(url: str = None, urls: List[str] = None):
+    if url:
+        _dispatch_url(url)
+    if urls:
+        _dispatch_urls(urls)
+
+
+def _get_url_service(url: str):
     url_split = urlsplit(url)
     netloc = url_split.netloc if url_split.scheme else url_split.path
     assert netloc
-    Service = _get_service_name(netloc)
+    return _get_service_name(netloc)
+
+
+def _dispatch_urls(urls: List[str]):
+    # you can create a dir here
+    folder = get_or_create_folder(path=os.getcwd(), folder_name="batch_download")
+    os.chdir(folder)
+    for url in urls:
+        Service = _get_url_service(url)
+        if Service:
+            print(f"Service {Service} found for the url {url}")
+            service = Service(url)
+        else:
+            print(f"Service not found for the url {url}")
+
+
+def _dispatch_url(url: str):
+    Service = _get_url_service(url)
     if Service:
         print(f"Service {Service} found for the url {url}")
         service = Service(url)
-
     else:
         print(f"No service found for the url {url}")
 

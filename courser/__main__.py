@@ -39,10 +39,11 @@ if parser.silent:
 print("Number of workers is: ", settings.WORKER_NUM)
 
 if parser.file:
-    urls = open(parser.file, 'r')
-    # for url in urls:
-    #     download_tutorial(url.strip())
-    dispatcher(urls)
+    urls_file = open(parser.file, 'r')
+    urls = []
+    for url in urls_file:
+        urls.append(url.strip())
+    dispatcher(urls=urls)
 
 else:
     if parser.url:
@@ -50,5 +51,4 @@ else:
     else:
         url = input("URL of tutorial: ")
 
-    dispatcher(url)
-    # download_tutorial(url)
+    dispatcher(url=url)

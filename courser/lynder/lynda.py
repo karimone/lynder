@@ -149,9 +149,8 @@ class LyndaTutorial:
         return tutorial
 
 
-
-class LyndaAuthorCourse:
-    def __init__(self, author: str, title: str, duration: str, release: str, url: str, description: str):
+class LyndaCourse:
+    def __init__(self, author: str, title: str, url: str, duration: str = None, release: str = None, description: str = None):
         self.author = author
         self.title = title
         self.duration = duration
@@ -160,8 +159,9 @@ class LyndaAuthorCourse:
         self.description = description
 
 
+
 class LyndaAuthorData:
-    def __init__(self, author: str, courses: List[LyndaAuthorCourse]):
+    def __init__(self, author: str, courses: List[LyndaCourse]):
         self.author = author
         self.courses = courses
 
@@ -185,7 +185,7 @@ class LyndaAuthor:
         self._author = author
         return author
 
-    def _get_courses(self) -> List[LyndaAuthorCourse]:
+    def _get_courses(self) -> List[LyndaCourse]:
         author = self._get_author()
         result = []
         courses = self._soup.find_all("li", attrs={"data-result-type": "COURSE"})
@@ -196,22 +196,46 @@ class LyndaAuthor:
             duration = course.find("span", attrs={"class": "meta-duration"}).text.strip()
             release = course.find("span", attrs={"class": "release-date"}).text.strip()
             description = course.find("div", attrs={"class": "meta-description"}).text.strip()
-            result.append(LyndaAuthorCourse(author=author,
-                                            url=url,
-                                            title=title,
-                                            duration=duration,
-                                            release=release,
-                                            description=description))
+            result.append(LyndaCourse(author=author,
+                                      url=url,
+                                      title=title,
+                                      duration=duration,
+                                      release=release,
+                                      description=description))
         return result
 
     def get_author_data(self) -> LyndaAuthorData:
         return LyndaAuthorData(author=self._get_author(), courses=self._get_courses())
 
 
+class LyndaPath:
+    """Do not work if you are not logged!"""
+
+    def __init__(self, page_data: str):
+        self._page_data = page_data
+        self._soup = BeautifulSoup(self._page_data, "html.parser")
+        self.courses = self._get_courses()
+
+    def _get_courses(self) -> List[LyndaCourse]:
+        courses = []
+        card_courses = self._soup.findAll("div", attrs={'class': 'card-content'})
+        for card_course in card_courses:
+            title_author = card_course.find('div', attr={'class': 'title-author-info'})
+            title = title_author.find('h2').text.strip()
+            author = title_author.find('cite', attrs={'class': 'author'}).text.strip()
+            description = title_author.find('div', attrs={'class': 'hidden-xs'}).text.strip()
+            duration = title_author.find('div', attrs={'class': 'meta-duration'})
+            url = None
+            courses.append(LyndaCourse(title=title, author=author, url=url, duration=duration, description=description))
+
+        return courses
+
+
 class Lynda:
 
     AUTHOR_PAGE = 'author'
     TUTORIAL_PAGE = 'tutorial'
+    PATH_PAGE = 'path'
 
     def __init__(self, url: str):
         self._url = url
@@ -229,13 +253,18 @@ class Lynda:
     def _determine_type_of_page(self) -> Optional[str]:
         """Returns the author name or nothing"""
         breadcrumbs = self._soup.find('div', attrs={'class': 'breadcrumbs'})
-        if not breadcrumbs:
-            return Lynda.TUTORIAL_PAGE
-        all_author = breadcrumbs.findChild('a').text.strip()
-        if all_author.lower() != "All Authors".lower():
-            return None
-        author = breadcrumbs.findChild('span').text.strip()
-        return Lynda.AUTHOR_PAGE
+        breadcrumb = self._soup.find('div', attrs={'class': 'breadcrumb'})
+
+        if breadcrumb:
+            if breadcrumb.text.strip().lower() == 'learning paths':
+                return Lynda.PATH_PAGE
+
+        if breadcrumbs:
+            if breadcrumbs.text.strip().lower() == 'all authors':
+                return Lynda.AUTHOR_PAGE
+
+        # This is too much of an assumption, maybe
+        return Lynda.TUTORIAL_PAGE
 
     def parse_url(self):
         type_of_page = self._determine_type_of_page()
@@ -243,6 +272,16 @@ class Lynda:
             self.run_author_download()
         elif type_of_page == Lynda.TUTORIAL_PAGE:
             self.run_tutorial_download(self._url)
+        elif type_of_page == Lynda.PATH_PAGE:
+            self.run_path_download()
+        else:
+            NotImplemented(f'This type of page {type_of_page} is not implemented')
+
+    def run_path_download(self):
+
+        lynda_author = LyndaAuthor(page_data=self._page_data)
+        lynda_author_data = lynda_author.get_author_data()
+        print(lynda_author_data)
 
     def run_author_download(self):
 
